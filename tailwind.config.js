@@ -24,6 +24,7 @@ module.exports = {
         "lucide",
         "streamline",
         "hugeicons",
+        "token-branded"
       ]),
       // If you want to use all icons from @iconify/json, you can do this:
       // collections: getIconCollections("all"),

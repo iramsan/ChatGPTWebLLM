@@ -9,6 +9,8 @@
   <link rel="stylesheet" href="css/output.css">
   <!-- Jquery -->
   <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <!-- Marked -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
   <style>
     body {
@@ -39,6 +41,69 @@
     .scrollbar::-webkit-scrollbar-track {
       background: #222222;
     }
+
+    .loader-container {
+      background-color: rgba(0, 0, 0, 0.7);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+    }
+
+    .loader {
+      width: 48px;
+      height: 48px;
+      display: inline-block;
+      position: relative;
+    }
+
+    .loader::after,
+    .loader::before {
+      content: '';
+      box-sizing: border-box;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 2px solid #FFF;
+      position: absolute;
+      left: 0;
+      top: 0;
+      animation: animloader 2s linear infinite;
+    }
+
+    .loader::after {
+      animation-delay: 1s;
+    }
+
+    @keyframes animloader {
+      0% {
+        transform: scale(0);
+        opacity: 1;
+      }
+
+      100% {
+        transform: scale(1);
+        opacity: 0;
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .text {
+      position: absolute;
+      bottom: 30%;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #666;
+      text-align: center;
+    }
   </style>
 
 </head>
@@ -46,7 +111,7 @@
 <body class="bg-[#212121] text-white">
 
 
-  <main class="scrollbar scroll-smooth">
+  <main class="scrollbar scroll-smooth mx-5">
     <div class="container mx-auto relative pt-5 md:max-w-[1000px]">
       <!-- Este ul es donde se ven todos los mensajes -->
       <ul class="flex flex-col gap-10">
@@ -55,13 +120,12 @@
 
       <!-- Send Message User -->
       <!-- Aqui envio el mensaje del usuario -->
-      <div class="fixed bottom-0 left-0 right-0 bg-[#212121]" id="divForm">
+      <div class="fixed bottom-0 left-0 right-0 bg-[#212121] mx-3" id="divForm">
         <form id="form" class="mb-10 mt-3 container mx-auto md:max-w-[1000px]">
-          <div class="flex gap-4">
-            <input type="text" placeholder="Envia un mensaje a ChatBot" class="py-3 px-3 rounded-2xl outline-none bg-[#363636] flex-grow">
-            <button type="submit" class="bg-[#363636] py-3 px-4 rounded-2xl flex items-center justify-center gap-2 hover:bg-white hover:text-black transition-colors duration-300 ease-in-out">
+          <div class="relative">
+            <input type="text" placeholder="Escribe un mensaje..." class="py-3 px-3 rounded-full outline-none bg-[#363636] flex-grow w-full pr-16">
+            <button id="btnSend" disabled type="submit" class="absolute top-[3px] right-[3px] bg-[#252525] p-3 rounded-full flex items-center justify-center hover:bg-white hover:text-black transition-colors duration-300 ease-in-out">
               <i class="i-streamline-send-email text-lg"></i>
-              <span>Enviar</span>
             </button>
           </div>
         </form>
@@ -75,23 +139,31 @@
       <template id="template-user">
         <li class="flex justify-end mb-2">
           <div class="flex flex-col items-end">
-            <p class="text-start max-w-[600px] bg-[#363636] text-white p-4 rounded-3xl"></p>
+            <p class="text-start max-w-[600px] bg-[#292929] text-white p-4 rounded-lg">Lorem ipsum dolor sit amet consectetur adipisicing elit. Eum beatae dolor, veniam consectetur quibusdam amet, magnam provident ea odio rerum est explicabo mollitia nisi. Itaque repudiandae sit earum maxime quasi?</p>
           </div>
         </li>
       </template>
 
-      <!-- Este es el template de como se va ver el mensaje del bot -->
-      <template id="template-bot">
-        <li class="flex justify-start mb-2">
-          <div class="flex flex-col items-start">
-            <span class="flex font-bold items-center justify-center gap-2 mb-3 bg-[#363636] px-3 py-2 rounded-full">
-              <i class="i-hugeicons-bot text-xl"></i>
-              <span></span>
-            </span>
-            <p class="text-white p-2 px-3 rounded-xl"></p>
+
+
+      <!-- Este es el template de como se va ver el mensaje del assistant -->
+      <template id="template-assistant">
+        <li class="flex gap-2 items-start">
+          <div class="flex items-center justify-center p-1 rounded-full shadow-md">
+            <i class="i-token-branded-elf text-2xl"></i>
+          </div>
+          <div class="col-span-11">
+            <p class="shadow-md p-2 rounded-lg">
+              Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus perspiciatis repudiandae quis optio quo officia debitis doloremque fugiat harum earum quaerat maxime magni quam vero, pariatur, iusto nostrum beatae placeat. Lorem ipsum dolor sit amet, consectetur adipisicing elit. Eaque sint temporibus sapiente molestiae fuga illum tenetur, itaque quasi, deserunt cumque odio, mollitia facere nobis labore minima! Rem quisquam molestias repellat? Lorem, ipsum dolor sit amet consectetur adipisicing elit. Magni ex tempore quasi quam fugiat. Aspernatur libero dolores, quisquam nesciunt quaerat eaque nobis quasi harum, praesentium ipsum obcaecati, voluptatibus vitae voluptatum! Lorem ipsum dolor sit amet consectetur adipisicing elit. Possimus impedit quasi optio. Quae sapiente, velit, dolorem fugit iste, ipsum a veniam minus error amet praesentium ratione voluptates aut illo. Non?
+            </p>
           </div>
         </li>
       </template>
+
+      <div class="loader-container" id="loading">
+        <div class="loader"></div>
+        <span class="text" id="text">Cargando</span>
+      </div>
 
     </div>
 
@@ -101,62 +173,91 @@
 
   <script type="module">
     // Importamos el modelo de lenguaje
+    marked.setOptions({
+      sanitize: false
+    });
     import {
       CreateMLCEngine
     } from "https://esm.run/@mlc-ai/web-llm";
-    // Seleccionamos el modelo pero hay muchos en la página de git del repo  de WEB-LLM
-    const SELECTED_MODEL = "Llama-3.2-1B-Instruct-q4f32_1-MLC";
-    // Creamos el motor de lenguaje
-    const engine = await CreateMLCEngine(SELECTED_MODEL, {
+    const arrMessages = [];
+    const SELECTED_MODEL = "Llama-3.2-1B-Instruct-q4f32_1-MLC"; // Seleccionamos el modelo pero hay muchos en la página de git del repo  de WEB-LLM
+    const engine = await CreateMLCEngine(SELECTED_MODEL, { // Creamos el motor de lenguaje
       initProgressCallback: (progress) => {
-        console.log(progress); // Nos muestra el progreso de la carga del modelo
-        // si la carga del modelo no les da erro pues significa que si sirve en cualquier windows solo en linux no me funciona
-        // porque no me detecta algun hardware o un driver
+        $('#text').text(progress.text);
+        if (progress.progress == 1) {
+          $('#loading').addClass('hidden');
+          $('#btnSend').removeAttr('disabled');
+        }
       },
     });
 
+    function addMessage(text, sender) {
+      $('#btnSend').attr('disabled', 'disabled');
+      let p;
+      if (sender === 'assistant') {
+        const cloneTemplate = $('#template-assistant')[0].content.cloneNode(true);
+        p = cloneTemplate.querySelector('p');
+        p.innerHTML = text
+        $('.container ul').append(cloneTemplate);
+      } else {
+        const cloneTemplate = $('#template-user')[0].content.cloneNode(true);
+        p = cloneTemplate.querySelector('p');
+        p.innerHTML = marked.parse(text);
+        $('.container ul').append(cloneTemplate);
+      }
+      return p;
+    }
 
     $(document).ready(() => {
       const form = $('#form');
+      let lastUserMessage = ""; // Variable para almacenar el último mensaje del usuario
 
-
-      // Aqui envio el mensaje del usuario
-      form.submit((e) => {
+      form.submit(async (e) => {
         e.preventDefault();
-        const message = form.find('input').val(); // Obtenemos el mensaje del input
+        const messageUserText = form.find('input').val().trim(); // Eliminar espacios
 
-        if (!message) return; // Si el mensaje esta vacio no hacemos nada
+        // Evitar enviar mensajes vacíos o duplicados
+        if (!messageUserText || messageUserText === lastUserMessage) return;
 
-        const cloneTemplate = $('#template-user')[0].content.cloneNode(true); // Clono el template del usuario
-        const span = cloneTemplate.querySelector('span'); // Obtengo el span que esta dentro del template del usuario
-        const p = cloneTemplate.querySelector('p'); // Obtengo el parrafo que esta dentro del template del usuario
+        lastUserMessage = messageUserText; // Actualizar el último mensaje
 
-        if (span) {
-          span.textContent = 'Tu';
-        }
-        p.textContent = message;
-
-        $('.container ul').append(cloneTemplate);
+        // Mensaje del usuario
+        addMessage(messageUserText, 'user');
+        const messageUser = {
+          role: 'user',
+          content: messageUserText
+        };
+        arrMessages.push(messageUser);
         form.find('input').val('');
-        $('.scrollbar').animate({
-          scrollTop: $('.scrollbar')[0].scrollHeight
-        }, 300);
 
+        $('#btnSend').attr('disabled', 'disabled'); // Deshabilitar el botón de enviar
+        form.find('input').attr('disabled', 'disabled'); // Deshabilitar el campo de texto
 
-        setTimeout(() => {
-          const cloneTemplateBot = $('#template-bot')[0].content.cloneNode(true);
-          const spanBot = cloneTemplateBot.querySelector('span');
-          const pBot = cloneTemplateBot.querySelector('p');
-          spanBot.innerHTML = '<i class="i-hugeicons-bot text-xl"></i><span>Bot</span>';
-          pBot.textContent = 'Hola, soy un bot';
-          $('.container ul').append(cloneTemplateBot);
+        // Mensaje del assistant
+        const parts = await engine.chat.completions.create({
+          messages: arrMessages,
+          stream: true
+        });
+
+        let reply = "";
+        let reload = addMessage("", 'assistant');
+        for await (const part of parts) {
+          const choice = part.choices[0];
+          const content = choice.delta.content ?? "";
+          reply += content;
+          reload.innerHTML = marked.parse(reply);
           $('.scrollbar').animate({
             scrollTop: $('.scrollbar')[0].scrollHeight
           }, 300);
-        }, 1000);
+        }
 
+        arrMessages.push({
+          role: 'assistant',
+          content: reply
+        });
 
-
+        $('#btnSend').removeAttr('disabled'); // Habilitar el botón de enviar
+        form.find('input').removeAttr('disabled'); // Habilitar el campo de texto
       });
     });
   </script>
