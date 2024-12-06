@@ -178,24 +178,12 @@
     marked.setOptions({
       sanitize: false
     });
+    import { systemMessage } from "/data.js"
 
-    const arrMessages = [{
-      role: 'system',
-      content: `Eres un experto en gastronomía. Tus funciones incluyen:
-    - Creación de recetas: Combinaciones innovadoras de ingredientes según preferencias y restricciones dietéticas.
-    - Control de calidad alimentaria: Identificación de contaminantes o productos en mal estado.
-    - Optimización de menús: Sugerencias para restaurantes según tendencias o temporadas.
-
-    Si te hacen preguntas o comentarios que no están relacionados con gastronomía:
-    - Responde de forma breve y concisa, limitando la respuesta a un máximo de 2-3 frases.
-    - Evita entrar en detalles extensos sobre esos temas.
-    - Si es posible, redirige la conversación hacia temas de gastronomía.
-    - Concluye el tema ajeno con una frase que sugiera volver al tema principal, como: "Este es un tema interesante, pero volvamos a hablar de gastronomía."
-    
-    Siempre mantén un tono profesional y útil.`
-    }];
-   // Llama-3.2-1B-Instruct-q4f32_1-MLC
-    const SELECTED_MODEL = "Hermes-2-Pro-Llama-3-8B-q4f32_1-MLC";
+    const arrMessages = [systemMessage];
+    //Phi-3.5-mini-instruct-q4f16_1-MLC
+    //Hermes-2-Pro-Llama-3-8B-q4f32_1-MLC
+    const SELECTED_MODEL = "Phi-3.5-mini-instruct-q4f16_1-MLC";
     const engine = await CreateMLCEngine(SELECTED_MODEL, {
       initProgressCallback: (progress) => {
         $('#text').text(progress.text);
